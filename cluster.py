@@ -25,13 +25,13 @@ class AffinityPropagation:
         '''
         Accepts a matrix with column 0 containing the labels
         of points to group and the rest of the columns containing
-        feature data
+        feature data. This uses negative euclidian distance squared
         '''
         in_shape = features_matrix.shape
         sim_matrix = np.zeros((in_shape[0], in_shape[0]))
         for i in range(in_shape[0]):
             for j in range(in_shape[0]):
-                for in_col in range(in_shape[1]): # skip id column
+                for in_col in range(in_shape[1]):
                     sim_matrix[i,j] += (features_matrix[i][in_col] - features_matrix[j][in_col]) ** 2
         sim_matrix += np.diag(np.repeat(np.amax(sim_matrix.flatten()), in_shape[0])) #Affects number of clusters
         return sim_matrix * -1
