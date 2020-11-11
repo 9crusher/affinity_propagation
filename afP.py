@@ -142,8 +142,12 @@ def affinity_propagation(S, *, preference=None, convergence_iter=15,
     e = np.zeros((n_samples, convergence_iter))
 
     ind = np.arange(n_samples)
-
+    np.set_printoptions(precision=3, suppress=True)
     for it in range(max_iter):
+        if verbose:
+            print('Iteration: {0}'.format(it))
+            print('Criterion:')
+            print(A+R)
         # tmp = A + S; compute responsibilities
         np.add(A, S, tmp)
         I = np.argmax(tmp, axis=1)
@@ -369,6 +373,21 @@ class AffinityPropagation(ClusterMixin, BaseEstimator):
             self.cluster_centers_ = X[self.cluster_centers_indices_].copy()
 
         return self
+
+    def similarity(self, features_matrix):
+        '''
+        Accepts a matrix with column 0 containing the labels
+        of points to group and the rest of the columns containing
+        feature data
+        '''
+        in_shape = features_matrix.shape
+        sim_matrix = np.zeros((in_shape[0], in_shape[0]))
+        for i in range(in_shape[0]):
+            for j in range(in_shape[0]):
+                for in_col in range(in_shape[1]): # skip id column
+                    sim_matrix[i,j] += (features_matrix[i][in_col] - features_matrix[j][in_col]) ** 2
+        sim_matrix += np.diag(np.repeat(np.amax(sim_matrix.flatten()), in_shape[0])) #Affects number of clusters
+        return sim_matrix * -1
 
     def predict(self, X):
         """Predict the closest cluster each sample in X belongs to.
